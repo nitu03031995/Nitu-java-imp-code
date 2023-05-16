@@ -1,0 +1,63 @@
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+public class ExcelDataReader {
+    private final String filePath;
+
+    public ExcelDataReader(String filePath) {
+        this.filePath = filePath;
+    }
+
+    public List<String> readRandomDataFromColumns() throws IOException {
+        List<String> randomDataList = new ArrayList<>();
+
+        FileInputStream fis = new FileInputStream(filePath);
+        Workbook workbook = new XSSFWorkbook(fis);
+        Sheet sheet = workbook.getSheetAt(0); // Assuming the data is in the first sheet
+
+        int columnCount = 5;
+        int[] dataCounts = {1, 3, 4, 2, 7};
+
+        Random random = new Random();
+
+        for (int columnIndex = 0; columnIndex < columnCount; columnIndex++) {
+            int dataCount = dataCounts[columnIndex];
+
+            int randomRowIndex = random.nextInt(dataCount) + 1; // Add 1 to skip the header row
+            Row row = sheet.getRow(randomRowIndex);
+            if (row != null) {
+                Cell cell = row.getCell(columnIndex);
+                if (cell != null) {
+                    String cellValue = cell.getStringCellValue();
+                    randomDataList.add(cellValue);
+                }
+            }
+        }
+
+        workbook.close();
+        fis.close();
+
+        return randomDataList;
+    }
+
+    public static void main(String[] args) {
+        String filePath = "path_to_your_excel_file.xlsx";
+        ExcelDataReader reader = new ExcelDataReader(filePath);
+
+        try {
+            List<String> randomDataList = reader.readRandomDataFromColumns();
+            System.out.println("Random data from each column:");
+            for (String data : randomDataList) {
+                System.out.println(data);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
